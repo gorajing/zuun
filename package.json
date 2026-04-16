@@ -1,0 +1,37 @@
+{
+  "name": "zuun",
+  "version": "0.0.1",
+  "description": "Persistent memory for AI-assisted work",
+  "author": "Jin Cho",
+  "license": "MIT",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "zuun": "./bin/zuun.js"
+  },
+  "scripts": {
+    "dev": "tsx src/mcp.ts",
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "reindex": "tsx src/reindex.ts",
+    "capture": "tsx src/capture.ts",
+    "embed": "tsx src/embed.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "better-sqlite3": "^12.8.0",
+    "gray-matter": "^4.0.3",
+    "sqlite-vec": "^0.1.7",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.5.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.0"
+  }
+}
