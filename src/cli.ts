@@ -17,8 +17,11 @@ commands:
   mcp          run the MCP server over stdio
   capture      read an entry body from stdin and save it
   search QRY   print top matches for QRY
+  explain QRY  show per-component scores (fts/vec/recency) for top hits
   reindex      rebuild the sqlite index from markdown files
   embed        embed all entries missing vectors (requires Ollama)
+  forget ID    delete an entry cleanly (disk + db)
+  edit ID      open an entry in $EDITOR and re-validate on save
   doctor       health check: entries, db, ollama, broken refs
   version      print the zuun version
   help         show this message
@@ -47,6 +50,18 @@ export async function runCli(argv: string[]): Promise<number> {
     }
     case "search":
       return cmdSearch(rest);
+    case "forget": {
+      const { forget } = await import("./commands/forget");
+      return forget(rest);
+    }
+    case "edit": {
+      const { edit } = await import("./commands/edit");
+      return edit(rest);
+    }
+    case "explain": {
+      const { explain } = await import("./commands/explain");
+      return explain(rest);
+    }
     case "doctor":
       return cmdDoctor();
     case "version":
