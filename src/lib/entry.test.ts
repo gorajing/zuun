@@ -45,4 +45,18 @@ describe("EntrySchema", () => {
     expect(ENTRY_ID_REGEX.test("ENT-260416-abcd")).toBe(false);
     expect(ENTRY_ID_REGEX.test("ENT-26416-ABCD")).toBe(false);
   });
+
+  it("accepts project as optional string", () => {
+    const parsed = EntrySchema.parse({ ...valid, project: "/work/acme" });
+    expect(parsed.project).toBe("/work/acme");
+  });
+
+  it("project is optional and defaults to undefined", () => {
+    const parsed = EntrySchema.parse(valid);
+    expect(parsed.project).toBeUndefined();
+  });
+
+  it("rejects non-string project", () => {
+    expect(() => EntrySchema.parse({ ...valid, project: 123 })).toThrow();
+  });
 });

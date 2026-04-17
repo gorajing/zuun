@@ -67,6 +67,9 @@ export const EntrySchema = z.object({
 
   /** Where this came from — git sha, session id, URL, file path, etc. */
   origin: z.string().optional(),
+
+  /** Absolute path to the project/repo this entry came from. Used by SessionStart + context_for for scoped retrieval. */
+  project: z.string().optional(),
 });
 
 export type Entry = z.infer<typeof EntrySchema>;
