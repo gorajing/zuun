@@ -40,40 +40,40 @@ export async function runCli(argv: string[]): Promise<number> {
     case "init":
       return cmdInit();
     case "mcp":
-      await import("./mcp");
+      await import("./mcp.js");
       return 0;
     case "reindex":
       return cmdReindex();
     case "embed":
       return cmdEmbed();
     case "capture": {
-      const { capture } = await import("./capture");
+      const { capture } = await import("./capture.js");
       return capture(rest);
     }
     case "search":
       return cmdSearch(rest);
     case "forget": {
-      const { forget } = await import("./commands/forget");
+      const { forget } = await import("./commands/forget.js");
       return forget(rest);
     }
     case "edit": {
-      const { edit } = await import("./commands/edit");
+      const { edit } = await import("./commands/edit.js");
       return edit(rest);
     }
     case "explain": {
-      const { explain } = await import("./commands/explain");
+      const { explain } = await import("./commands/explain.js");
       return explain(rest);
     }
     case "install-git-hook": {
-      const { installGitHook } = await import("./commands/install-git-hook");
+      const { installGitHook } = await import("./commands/install-git-hook.js");
       return installGitHook(rest);
     }
     case "capture-commit": {
-      const { captureCommit } = await import("./commands/capture-commit");
+      const { captureCommit } = await import("./commands/capture-commit.js");
       return captureCommit(rest);
     }
     case "session-start": {
-      const { runSessionStart } = await import("./hook-scripts/session-start");
+      const { runSessionStart } = await import("./hook-scripts/session-start.js");
       let raw = "";
       process.stdin.setEncoding("utf8");
       for await (const chunk of process.stdin) raw += chunk;
@@ -158,6 +158,10 @@ async function cmdDoctor(): Promise<number> {
   return report.healthy ? 0 : 1;
 }
 
-if (require.main === module) {
+// Direct invocation via `tsx src/cli.ts ...` (e.g., from bin/zuun.js dev path):
+// process.argv[1] points at cli.ts. Run the dispatcher.
+if (process.argv[1] && process.argv[1].endsWith("cli.ts")) {
+  runCli(process.argv.slice(2)).then((code) => process.exit(code));
+} else if (require.main === module) {
   runCli(process.argv.slice(2)).then((code) => process.exit(code));
 }
