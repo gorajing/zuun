@@ -6,7 +6,7 @@
   "license": "MIT",
   "type": "commonjs",
   "engines": {
-    "node": ">=20"
+    "node": "20.x || 22.x"
   },
   "bin": {
     "zuun": "./bin/zuun.js"
@@ -16,9 +16,8 @@
     "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
-    "reindex": "tsx src/reindex.ts",
-    "capture": "tsx src/capture.ts",
-    "embed": "tsx src/embed.ts"
+    "cli": "tsx src/cli.ts",
+    "reindex": "tsx src/scripts/reindex.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",

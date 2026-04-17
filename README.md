@@ -38,6 +38,14 @@ zuun init
 claude mcp add zuun -- zuun mcp
 ```
 
+### Build prerequisites
+
+`zuun` depends on `better-sqlite3` and `sqlite-vec`, both native modules. On most systems prebuilt binaries install automatically. If `npm install` falls through to compilation:
+
+- **macOS:** `xcode-select --install` (Xcode Command Line Tools)
+- **Linux (Debian/Ubuntu):** `sudo apt install build-essential python3`
+- **Linux (Fedora/RHEL):** `sudo dnf groupinstall "Development Tools" && sudo dnf install python3`
+
 ## Data model
 
 A single record type: `Entry`. Everything else is emergent.
