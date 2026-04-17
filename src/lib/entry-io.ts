@@ -11,7 +11,14 @@ function entryPath(id: string): string {
 export function writeEntry(entry: Entry): void {
   EntrySchema.parse(entry);
   fs.mkdirSync(entriesDir(), { recursive: true });
-  const { body, ...frontmatter } = entry;
+  const { body, ...rest } = entry;
+  // js-yaml cannot serialize `undefined` — strip optional fields that weren't set.
+  // Keeping `undefined` keys in frontmatter (e.g., stance: undefined from a caller
+  // that explicitly sets it) would throw "unacceptable kind of an object to dump".
+  const frontmatter: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(rest)) {
+    if (value !== undefined) frontmatter[key] = value;
+  }
   const file = matter.stringify(body, frontmatter);
   const final = entryPath(entry.id);
   const tmp = `${final}.${process.pid}.tmp`;
