@@ -22,6 +22,8 @@ commands:
   embed        embed all entries missing vectors (requires Ollama)
   forget ID    delete an entry cleanly (disk + db)
   edit ID      open an entry in $EDITOR and re-validate on save
+  install-git-hook  install a git post-commit hook in the current repo
+  capture-commit    capture the latest git commit (invoked by the post-commit hook)
   doctor       health check: entries, db, ollama, broken refs
   version      print the zuun version
   help         show this message
@@ -61,6 +63,14 @@ export async function runCli(argv: string[]): Promise<number> {
     case "explain": {
       const { explain } = await import("./commands/explain");
       return explain(rest);
+    }
+    case "install-git-hook": {
+      const { installGitHook } = await import("./commands/install-git-hook");
+      return installGitHook(rest);
+    }
+    case "capture-commit": {
+      const { captureCommit } = await import("./commands/capture-commit");
+      return captureCommit(rest);
     }
     case "session-start": {
       const { runSessionStart } = await import("./hook-scripts/session-start");
