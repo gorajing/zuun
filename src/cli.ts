@@ -62,6 +62,21 @@ export async function runCli(argv: string[]): Promise<number> {
       const { explain } = await import("./commands/explain");
       return explain(rest);
     }
+    case "session-start": {
+      const { runSessionStart } = await import("./hook-scripts/session-start");
+      let raw = "";
+      process.stdin.setEncoding("utf8");
+      for await (const chunk of process.stdin) raw += chunk;
+      let cwd = process.cwd();
+      try {
+        const parsed = JSON.parse(raw) as { cwd?: string };
+        if (parsed.cwd) cwd = parsed.cwd;
+      } catch {
+        /* ignore */
+      }
+      await runSessionStart({ cwd });
+      return 0;
+    }
     case "doctor":
       return cmdDoctor();
     case "version":
