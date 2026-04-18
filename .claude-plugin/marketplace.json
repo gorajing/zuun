@@ -1,0 +1,13 @@
+{
+  "name": "zuun-local",
+  "owner": {
+    "name": "Jin Cho"
+  },
+  "plugins": [
+    {
+      "name": "zuun",
+      "source": "./",
+      "description": "Persistent memory for Claude Code sessions — local-first markdown + SQLite, hybrid search, auto-capture."
+    }
+  ]
+}
