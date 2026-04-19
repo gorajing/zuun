@@ -3,6 +3,6 @@
   "version": "0.0.1",
   "description": "Persistent memory for Claude Code sessions — local-first markdown + SQLite, hybrid search, auto-capture.",
   "author": { "name": "Jin Cho" },
-  "homepage": "https://github.com/jinchoi/zuun",
+  "homepage": "https://github.com/gorajing/zuun",
   "license": "MIT"
 }

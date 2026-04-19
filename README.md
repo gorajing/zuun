@@ -76,10 +76,12 @@ Prerequisites:
 - `git` (for the post-commit hook)
 
 ```bash
-git clone https://github.com/gorajing/zuun.git ~/Code/zuun
-cd ~/Code/zuun
+# Clone wherever you keep dev projects; we'll refer to that path as $ZUUN below.
+git clone https://github.com/gorajing/zuun.git
+cd zuun
 npm install
 npm test           # 167 tests should pass in ~5s
+export ZUUN="$PWD"  # for the commands below; your shell is fine without it too
 ```
 
 ### Load into Claude Code
@@ -89,26 +91,42 @@ Two paths. Start with option 1 — the primitive is easier to debug than the sho
 **Option 1 — local plugin dir (proof path):**
 
 ```bash
-claude --plugin-dir .
+claude --plugin-dir "$ZUUN"
 ```
 
-Inside Claude Code, run `/mcp` — `zuun` should appear as **connected**. That's the signal the server booted and registered.
+Inside Claude Code, run `/mcp` — `zuun` should appear as **connected**. That's the signal the server booted and registered. No data setup required: the store (`~/.zuun/`) auto-creates on first write.
 
 **Option 2 — local marketplace (auto-loading):**
 
 ```bash
-claude plugin marketplace add .claude-plugin/marketplace.json
+claude plugin marketplace add "$ZUUN/.claude-plugin/marketplace.json"
 claude plugin install zuun@zuun-local
 ```
 
 After this, every new Claude Code session auto-loads Zuun — no flag needed. If this fails, fall back to option 1 and run `claude --debug` to see why.
 
+### First run — zero setup
+
+Start a new Claude Code session, then prompt the agent:
+
+> *"Use the zuun remember tool to save: 'Local-first beats cloud-first because tar is the moat.'"*
+
+It'll return `saved ENT-YYMMDD-XXXX`. That's your first entry. The store was created, the index was built, and future sessions will see this entry in their SessionStart context when you're in the same project directory.
+
+From here, the loop starts: capture what's hard-won, let SessionStart re-surface it, use `/zuun:reflect` at natural breakpoints.
+
 ### Install the git post-commit hook in your active repos
 
 ```bash
 # In each repo you want to capture commits from:
-cd ~/Code/my-project
-~/Code/zuun/bin/zuun.js install-git-hook
+cd ~/path/to/my-project
+"$ZUUN/bin/zuun.js" install-git-hook
+```
+
+Tip: add an alias so you don't have to type the path every time —
+
+```bash
+echo 'alias zuun="$ZUUN/bin/zuun.js"' >> ~/.zshrc   # or ~/.bashrc
 ```
 
 The installer writes an absolute path into `.git/hooks/post-commit` (one per repo, opt-in). Hooks fire outside Claude Code too — every `git commit` becomes an `ENT-*.md` with `source: git`, the commit SHA as `origin`, and the commit message + changed files as the body.
