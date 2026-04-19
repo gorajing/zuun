@@ -20,7 +20,7 @@ async function main() {
   const tsxBin = require.resolve("tsx/cli");
   const child = spawn(process.execPath, [tsxBin, srcCli, ...process.argv.slice(2)], {
     stdio: "inherit",
-    env: process.env,
+    env: { ...process.env, ZUUN_BIN: __filename },
   });
   child.on("exit", (code, signal) => {
     if (signal) process.kill(process.pid, signal);

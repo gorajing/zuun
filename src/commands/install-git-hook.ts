@@ -9,12 +9,24 @@ const SHEBANG = "#!/usr/bin/env sh\n";
  * Absolute path to the zuun.js we want the installed hook to invoke.
  * Git hooks run outside Claude Code, so they cannot rely on PATH or CLAUDE_PLUGIN_ROOT
  * at fire time. We resolve the plugin's install location NOW and embed it literally
- * in the hook content.
+ * in the hook content. Resolution order:
+ *
+ *   1. ZUUN_BIN — set by bin/zuun.js when it spawns the tsx child (dev path).
+ *      Authoritative in normal use.
+ *   2. CLAUDE_PLUGIN_ROOT — set by Claude Code when loaded as a plugin.
+ *   3. Walk up from process.argv[1] when it is src/cli.ts to find bin/zuun.js
+ *      next door. Covers `tsx src/cli.ts install-git-hook` invocations.
+ *   4. Last resort: literal argv[1] — only correct when argv[1] is bin/zuun.js
+ *      itself (compiled/direct-node path).
  */
 function resolveZuunBinPath(): string {
+  if (process.env.ZUUN_BIN) return path.resolve(process.env.ZUUN_BIN);
   const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
   if (pluginRoot) return path.resolve(pluginRoot, "bin", "zuun.js");
   const argv1 = process.argv[1];
+  if (argv1?.endsWith(".ts")) {
+    return path.resolve(path.dirname(argv1), "..", "bin", "zuun.js");
+  }
   if (argv1) return path.resolve(argv1);
   throw new Error("install-git-hook: cannot resolve absolute path to zuun.js");
 }

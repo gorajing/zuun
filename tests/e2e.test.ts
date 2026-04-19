@@ -60,6 +60,36 @@ describe("e2e", () => {
     expect(v.stdout.trim().length).toBeGreaterThan(0);
   });
 
+  // Regression: install-git-hook must embed a runnable absolute path to
+  // bin/zuun.js in the installed hook. The unit test forces CLAUDE_PLUGIN_ROOT
+  // to make resolution trivial, which masks the real failure mode: when the
+  // command is run outside Claude Code (e.g. a user in a plain shell), neither
+  // CLAUDE_PLUGIN_ROOT nor a node-executable process.argv[1] is available, and
+  // earlier versions embedded `node "src/cli.ts"` — which silently fails because
+  // node cannot run a .ts file directly and the hook swallows the error via
+  // `|| true`. This test spawns through the real shim without CLAUDE_PLUGIN_ROOT
+  // and asserts the hook points at bin/zuun.js.
+  it("install-git-hook (real shim, no CLAUDE_PLUGIN_ROOT) writes a runnable hook", () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), "zuun-hook-"));
+    try {
+      spawnSync("git", ["init", "--initial-branch=main"], { cwd: repo });
+      const plainEnv = { ...process.env };
+      delete (plainEnv as Record<string, string | undefined>).CLAUDE_PLUGIN_ROOT;
+      const install = spawnSync(
+        "node",
+        [path.resolve("bin/zuun.js"), "install-git-hook"],
+        { cwd: repo, env: plainEnv, encoding: "utf8" },
+      );
+      expect(install.status).toBe(0);
+      const hookPath = path.join(repo, ".git", "hooks", "post-commit");
+      const content = fs.readFileSync(hookPath, "utf8");
+      expect(content).toContain("bin/zuun.js");
+      expect(content).not.toMatch(/src\/cli\.ts/);
+    } finally {
+      fs.rmSync(repo, { recursive: true, force: true });
+    }
+  });
+
   // Regression: the real path Claude Code uses to launch the MCP server is
   // `node bin/zuun.js mcp`, which dispatches through src/cli.ts. Earlier versions
   // of cli.ts returned 0 after `await import("./mcp.js")`, causing the outer
