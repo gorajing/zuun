@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { spawnSync } from "child_process";
+import { spawn, spawnSync } from "child_process";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
@@ -59,4 +59,46 @@ describe("e2e", () => {
     expect(v.status).toBe(0);
     expect(v.stdout.trim().length).toBeGreaterThan(0);
   });
+
+  // Regression: the real path Claude Code uses to launch the MCP server is
+  // `node bin/zuun.js mcp`, which dispatches through src/cli.ts. Earlier versions
+  // of cli.ts returned 0 after `await import("./mcp.js")`, causing the outer
+  // runCli().then(process.exit) to kill the server before it could answer a
+  // single request. Tests that spawn `tsx src/mcp.ts` directly bypass this
+  // dispatcher and cannot catch the regression. This test exercises the exact
+  // production path.
+  it("mcp server survives the bin/zuun.js dispatch and answers initialize", async () => {
+    cli(["init"]);
+    const proc = spawn("node", ["bin/zuun.js", "mcp"], {
+      env: env(),
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    try {
+      let stdout = "";
+      proc.stdout.on("data", (d) => (stdout += d.toString()));
+      proc.stdin.write(
+        JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "initialize",
+          params: {
+            protocolVersion: "2024-11-05",
+            capabilities: {},
+            clientInfo: { name: "test", version: "0" },
+          },
+        }) + "\n",
+      );
+      const deadline = Date.now() + 8000;
+      while (Date.now() < deadline) {
+        if (stdout.includes('"id":1')) break;
+        await new Promise((r) => setTimeout(r, 50));
+      }
+      expect(stdout).toContain('"protocolVersion":"2024-11-05"');
+      expect(stdout).toContain('"name":"zuun"');
+      expect(proc.exitCode).toBeNull(); // still alive, not killed by dispatcher
+    } finally {
+      proc.kill("SIGKILL");
+      await new Promise((r) => proc.on("exit", r));
+    }
+  }, 15_000);
 });

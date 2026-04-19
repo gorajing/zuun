@@ -41,7 +41,12 @@ export async function runCli(argv: string[]): Promise<number> {
       return cmdInit();
     case "mcp":
       await import("./mcp.js");
-      return 0;
+      // mcp.ts registers stdin handlers (StdioServerTransport) that keep the
+      // process alive. Returning here would cause the outer
+      // runCli(...).then(process.exit) to terminate the server before it
+      // handles a single request. Hang forever; the MCP server's own lifecycle
+      // (stdin EOF → process exits naturally) handles shutdown.
+      return new Promise<number>(() => {});
     case "reindex":
       return cmdReindex();
     case "embed":
