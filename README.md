@@ -327,4 +327,4 @@ Zuun was built with [Claude Code](https://docs.anthropic.com/claude-code) and us
 
 ## License
 
-MIT © Jin Cho
+MIT © Jin Choi
