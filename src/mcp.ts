@@ -170,15 +170,18 @@ async function handleRemember(args: unknown) {
     upsertEntry(db, entry);
     appendLog("remember", { id, kind: entry.kind, tags: entry.tags });
     // Fire-and-forget embed: search works without it; rerun via `zuun embed`.
-    void defaultProvider.embed(entry.body).then((vec) => {
-      if (!vec) return;
-      const db2 = openDb();
-      try {
-        setEmbedding(db2, id, vec);
-      } finally {
-        db2.close();
-      }
-    });
+    void defaultProvider
+      .embed(entry.body)
+      .then((vec) => {
+        if (!vec) return;
+        const db2 = openDb();
+        try {
+          setEmbedding(db2, id, vec);
+        } finally {
+          db2.close();
+        }
+      })
+      .catch(() => {});
     const tagLine = entry.tags.length ? ` · tags: ${entry.tags.join(", ")}` : "";
     return {
       content: [
