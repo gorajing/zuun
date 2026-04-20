@@ -300,7 +300,7 @@ Budget: **warm search <100ms on 1k entries**. Current on M-series Mac: ~2ms hybr
 
 ## Project status
 
-**v0 shipped.** 167 tests green. Full plugin surface verified end-to-end on a real Claude Code session (MCP tools, slash command, SessionStart hook, git post-commit hook). Perf within budget by ~50×.
+**v0.1.0 released.** First public tagged release. 167 tests green. Full plugin surface verified end-to-end on a real Claude Code session (MCP tools, slash command, SessionStart hook, git post-commit hook). Perf within budget by ~50×.
 
 This is pre-1.0 software. Schema is versioned (`schema_version: 2`); breaking changes will get a migration path, not a silent reset.
 

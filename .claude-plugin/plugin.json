@@ -2,7 +2,7 @@
   "name": "zuun",
   "version": "0.1.0",
   "description": "Persistent memory for Claude Code sessions — local-first markdown + SQLite, hybrid search, auto-capture.",
-  "author": { "name": "Jin Cho" },
+  "author": { "name": "Jin Choi" },
   "homepage": "https://github.com/gorajing/zuun",
   "repository": "https://github.com/gorajing/zuun",
   "license": "MIT",

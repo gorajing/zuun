@@ -2,7 +2,7 @@
   "name": "zuun",
   "version": "0.1.0",
   "description": "Persistent memory for AI-assisted work",
-  "author": "Jin Cho",
+  "author": "Jin Choi",
   "license": "MIT",
   "type": "commonjs",
   "engines": {
