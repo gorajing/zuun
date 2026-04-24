@@ -1,9 +1,26 @@
 {
   "name": "zuun",
-  "version": "0.1.0",
-  "description": "Persistent memory for AI-assisted work",
+  "version": "0.1.1",
+  "description": "Persistent memory for AI-assisted work — local-first markdown + SQLite, hybrid search, Claude Code plugin.",
   "author": "Jin Choi",
   "license": "MIT",
+  "homepage": "https://github.com/gorajing/zuun",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gorajing/zuun.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gorajing/zuun/issues"
+  },
+  "keywords": [
+    "claude-code",
+    "mcp",
+    "memory",
+    "ai-agents",
+    "local-first",
+    "typescript",
+    "plugin"
+  ],
   "type": "commonjs",
   "engines": {
     "node": "20.x || 22.x"
@@ -11,13 +28,21 @@
   "bin": {
     "zuun": "./bin/zuun.js"
   },
+  "files": [
+    "bin/",
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "dev": "tsx src/mcp.ts",
     "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
     "cli": "tsx src/cli.ts",
-    "reindex": "tsx src/scripts/reindex.ts"
+    "reindex": "tsx src/scripts/reindex.ts",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm test"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",

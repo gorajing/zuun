@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "zuun": {
-      "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/bin/zuun.js", "mcp"]
+      "command": "npx",
+      "args": ["-y", "zuun@latest", "mcp"]
     }
   }
 }

@@ -75,37 +75,27 @@ Prerequisites:
 - [Ollama](https://ollama.com/) with `nomic-embed-text` *(optional — search works without it via pure FTS; embeddings just improve semantic match)*
 - `git` (for the post-commit hook)
 
-```bash
-# Clone wherever you keep dev projects; we'll refer to that path as $ZUUN below.
-git clone https://github.com/gorajing/zuun.git
-cd zuun
-npm install
-npm test           # 167 tests should pass in ~5s
-export ZUUN="$PWD"  # for the commands below; your shell is fine without it too
-```
-
-### Load into Claude Code
-
-Two paths. Start with option 1 — the primitive is easier to debug than the shortcut.
-
-**Option 1 — local plugin dir (proof path):**
+### 1. Install the Claude Code plugin
 
 ```bash
-claude --plugin-dir "$ZUUN"
+claude plugin marketplace add github:gorajing/zuun
+claude plugin install zuun@zuun
 ```
 
-Inside Claude Code, run `/mcp` — `zuun` should appear as **connected**. That's the signal the server booted and registered. No data setup required: the store (`~/.zuun/`) auto-creates on first write.
+Relaunch Claude Code. Run `/mcp` — `zuun` should appear as **connected**. That's the signal the MCP server booted (fetched from npm on first run via `npx`). No data setup required: the store (`~/.zuun/`) auto-creates on first write.
 
-**Option 2 — local marketplace (auto-loading):**
+### 2. Install the CLI globally (optional but recommended)
+
+For the git post-commit hook, manual captures, and shell pipelines:
 
 ```bash
-claude plugin marketplace add "$ZUUN/.claude-plugin/marketplace.json"
-claude plugin install zuun@zuun-local
+npm install -g zuun
+zuun --version   # should print 0.1.1
 ```
 
-After this, every new Claude Code session auto-loads Zuun — no flag needed. If this fails, fall back to option 1 and run `claude --debug` to see why.
+The Claude Code plugin and the global CLI share the same `~/.zuun/` store, so entries captured from one are visible to the other.
 
-### First run — zero setup
+### 3. First run — zero setup
 
 Start a new Claude Code session, then prompt the agent:
 
@@ -115,23 +105,33 @@ It'll return `saved ENT-YYMMDD-XXXX`. That's your first entry. The store was cre
 
 From here, the loop starts: capture what's hard-won, let SessionStart re-surface it, use `/zuun:reflect` at natural breakpoints.
 
-### Install the git post-commit hook in your active repos
+### 4. Install the git post-commit hook in your active repos
+
+Requires the global CLI from step 2.
 
 ```bash
 # In each repo you want to capture commits from:
 cd ~/path/to/my-project
-"$ZUUN/bin/zuun.js" install-git-hook
-```
-
-Tip: add an alias so you don't have to type the path every time —
-
-```bash
-echo 'alias zuun="$ZUUN/bin/zuun.js"' >> ~/.zshrc   # or ~/.bashrc
+zuun install-git-hook
 ```
 
 The installer writes an absolute path into `.git/hooks/post-commit` (one per repo, opt-in). Hooks fire outside Claude Code too — every `git commit` becomes an `ENT-*.md` with `source: git`, the commit SHA as `origin`, and the commit message + changed files as the body.
 
 To remove: `rm .git/hooks/post-commit`. It's one file per repo.
+
+### Developing on zuun itself
+
+If you want to hack on zuun's source:
+
+```bash
+git clone https://github.com/gorajing/zuun.git
+cd zuun
+npm install
+npm test           # 167 tests should pass in ~5s
+
+# Load your local working copy into Claude Code instead of the marketplace version:
+claude --plugin-dir "$PWD"
+```
 
 ---
 
@@ -300,17 +300,16 @@ Budget: **warm search <100ms on 1k entries**. Current on M-series Mac: ~2ms hybr
 
 ## Project status
 
-**v0.1.0 released.** First public tagged release. 167 tests green. Full plugin surface verified end-to-end on a real Claude Code session (MCP tools, slash command, SessionStart hook, git post-commit hook). Perf within budget by ~50×.
+**v0.1.1 released.** Published to npm; plugin installable from GitHub via the marketplace flow. 167 tests green. Full plugin surface verified end-to-end on a real Claude Code session (MCP tools, slash command, SessionStart hook, git post-commit hook). Perf within budget by ~50×.
 
 This is pre-1.0 software. Schema is versioned (`schema_version: 2`); breaking changes will get a migration path, not a silent reset.
 
 ### Roadmap
 
-Explicitly deferred past v0. Each has a reason:
+Explicitly deferred past v0.1. Each has a reason:
 
-- **Marketplace publishing** — `claude plugin install zuun@<marketplace>` via a published registry. v0.1.
-- **`~/.zuun` as a git repo with commit-on-write** — cross-device sync + audit history. v0.1.
-- **Cursor integration** — schema supports `source: cursor`; needs a capture path. v0.1.
+- **`~/.zuun` as a git repo with commit-on-write** — cross-device sync + audit history. Next substantive build.
+- **Cursor integration** — schema supports `source: cursor`; needs a capture path.
 - **`forget` / `edit` as MCP tools** — CLI-only today per attention-budget principle. Adds iff usage data says agents ask users to delete/edit.
 - **`export` / `import`** — `tar -czf ~/zuun.tgz ~/.zuun` works today.
 - **Multi-layer memory hierarchy** (short-term / long-term / reasoning traces) — the `kind` field is the hook. v0.2.

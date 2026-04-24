@@ -22,10 +22,13 @@ describe("plugin manifest", () => {
     expect(m.mcpServers!.zuun).toBeDefined();
   });
 
-  it(".mcp.json's zuun entry invokes bin/zuun.js mcp", () => {
+  it(".mcp.json's zuun entry invokes zuun via npx with the mcp subcommand", () => {
     const m = JSON.parse(fs.readFileSync(path.join(ROOT, ".mcp.json"), "utf8")) as {
       mcpServers: { zuun: { command: string; args: string[] } };
     };
-    expect(m.mcpServers.zuun.args.join(" ")).toMatch(/bin\/zuun\.js mcp/);
+    expect(m.mcpServers.zuun.command).toBe("npx");
+    const args = m.mcpServers.zuun.args.join(" ");
+    expect(args).toMatch(/zuun@/);
+    expect(args).toMatch(/\bmcp\b/);
   });
 });
