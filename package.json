@@ -1,5 +1,5 @@
 {
-  "name": "zuun",
+  "name": "@gorajing/zuun",
   "version": "0.1.1",
   "description": "Persistent memory for AI-assisted work — local-first markdown + SQLite, hybrid search, Claude Code plugin.",
   "author": "Jin Choi",

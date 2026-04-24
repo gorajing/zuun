@@ -2,7 +2,7 @@
   "mcpServers": {
     "zuun": {
       "command": "npx",
-      "args": ["-y", "zuun@latest", "mcp"]
+      "args": ["-y", "@gorajing/zuun@latest", "mcp"]
     }
   }
 }

@@ -89,9 +89,11 @@ Relaunch Claude Code. Run `/mcp` — `zuun` should appear as **connected**. That
 For the git post-commit hook, manual captures, and shell pipelines:
 
 ```bash
-npm install -g zuun
+npm install -g @gorajing/zuun
 zuun --version   # should print 0.1.1
 ```
+
+(The npm package is scoped as `@gorajing/zuun` because `zuun` is too close to an existing unscoped package. The CLI binary is still `zuun` — the scope is just for the registry namespace.)
 
 The Claude Code plugin and the global CLI share the same `~/.zuun/` store, so entries captured from one are visible to the other.
 
