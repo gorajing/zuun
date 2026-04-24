@@ -63,9 +63,15 @@ describe("mcp server", () => {
     });
   });
 
-  afterEach(() => {
-    proc.kill();
-    fs.rmSync(tmp, { recursive: true, force: true });
+  afterEach(async () => {
+    // Wait for the subprocess to actually exit before removing tmp. Without this,
+    // SQLite WAL files or the fire-and-forget embed writer can still be open,
+    // causing ENOTEMPTY under load on some file systems.
+    if (proc.exitCode === null) {
+      proc.kill();
+      await new Promise<void>((resolve) => proc.on("exit", () => resolve()));
+    }
+    fs.rmSync(tmp, { recursive: true, force: true, maxRetries: 3, retryDelay: 50 });
   });
 
   it("lists remember and context_for tools with non-empty descriptions", async () => {
