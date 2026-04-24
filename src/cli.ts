@@ -8,7 +8,9 @@ import { search } from "./lib/search";
 import { runDoctor } from "./lib/doctor";
 import { appendLog } from "./lib/log";
 
-const VERSION = "0.0.1";
+// Kept in sync with package.json on release. If this drifts again, switch to
+// a runtime read of package.json (deferred: avoiding rootDir + tsc complexity).
+const VERSION = "0.1.1";
 
 const HELP = `usage: zuun <command>
 

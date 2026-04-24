@@ -67,7 +67,7 @@ OUTPUT: A markdown list of up to \`limit\` entries. Each line shows id, kind, re
 
 async function main(): Promise<void> {
   const server = new Server(
-    { name: "zuun", version: "0.0.1" },
+    { name: "zuun", version: "0.1.1" },
     { capabilities: { tools: {} } },
   );
 
