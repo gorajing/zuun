@@ -90,7 +90,7 @@ For the git post-commit hook, manual captures, and shell pipelines:
 
 ```bash
 npm install -g @gorajing/zuun
-zuun --version   # should print 0.1.1
+zuun --version   # should print 0.1.2
 ```
 
 (The npm package is scoped as `@gorajing/zuun` because `zuun` is too close to an existing unscoped package. The CLI binary is still `zuun` — the scope is just for the registry namespace.)
@@ -195,7 +195,7 @@ zuun edit <id>               open in $EDITOR; re-validate on save; DB untouched 
 zuun install-git-hook        install post-commit hook in current repo
 zuun capture-commit          (invoked by hook; not for direct use)
 
-zuun doctor                  health check: disk vs DB, schema, ollama, broken refs, log tail
+zuun doctor                  health check: disk vs DB, schema, ollama, broken refs, audit cadence, log tail
 zuun version                 print version
 zuun help                    show commands
 
@@ -302,7 +302,7 @@ Budget: **warm search <100ms on 1k entries**. Current on M-series Mac: ~2ms hybr
 
 ## Project status
 
-**v0.1.1 released.** Published to npm; plugin installable from GitHub via the marketplace flow. 167 tests green. Full plugin surface verified end-to-end on a real Claude Code session (MCP tools, slash command, SessionStart hook, git post-commit hook). Perf within budget by ~50×.
+**v0.1.2 released.** Audit-derived lints: `zuun doctor` now reports audit cadence and exits nonzero when the corpus has 50+ entries since the last audit-tagged entry; `capture`/`remember` route stray entry IDs from tags into related and flag short untagged decisions. 201 tests green. Published to npm; plugin installable from GitHub via the marketplace flow, with the full plugin surface verified end-to-end on a real Claude Code session (MCP tools, slash command, SessionStart hook, git post-commit hook). Perf within budget by ~50×. See [CHANGELOG.md](CHANGELOG.md) for release history.
 
 This is pre-1.0 software. Schema is versioned (`schema_version: 2`); breaking changes will get a migration path, not a silent reset.
 

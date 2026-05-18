@@ -10,7 +10,7 @@ import { appendLog } from "./lib/log";
 
 // Kept in sync with package.json on release. If this drifts again, switch to
 // a runtime read of package.json (deferred: avoiding rootDir + tsc complexity).
-const VERSION = "0.1.1";
+const VERSION = "0.1.2";
 
 const HELP = `usage: zuun <command>
 
@@ -26,7 +26,7 @@ commands:
   edit ID      open an entry in $EDITOR and re-validate on save
   install-git-hook  install a git post-commit hook in the current repo
   capture-commit    capture the latest git commit (invoked by the post-commit hook)
-  doctor       health check: entries, db, ollama, broken refs
+  doctor       health check: entries, db, ollama, broken refs, audit cadence
   version      print the zuun version
   help         show this message
 `;
