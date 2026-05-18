@@ -15,6 +15,7 @@ import { defaultProvider } from "./lib/embed-provider";
 import { setEmbedding } from "./lib/embed";
 import { EntryKind, EntrySource, type Entry } from "./lib/entry";
 import { normalizeTags } from "./lib/tags";
+import { routeEntTokensFromTags, isShortDecisionNoTags } from "./lib/lints";
 import { findRecentDuplicate } from "./lib/dedup";
 import { resolveProject } from "./lib/project";
 import { appendLog } from "./lib/log";
@@ -153,6 +154,9 @@ async function handleRemember(args: unknown) {
         ],
       };
     }
+    // Lint raw tags before normalization (normalizeTags lowercases; entry IDs
+    // are uppercase-hex, so an ENT token must be routed here — ENT-260514-4BA0).
+    const routing = routeEntTokensFromTags(input.tags, input.related);
     const id = newEntryId(input.body, now);
     const entry: Entry = {
       id,
@@ -160,12 +164,27 @@ async function handleRemember(args: unknown) {
       body: input.body,
       kind: input.kind,
       source: SOURCE,
-      tags: normalizeTags(input.tags),
-      related: input.related,
+      tags: normalizeTags(routing.tags),
+      related: routing.related,
       stance: input.stance,
       origin: input.origin,
       project: input.project ?? resolveProject(),
     };
+    // Lint notes for the calling agent. Provenance (ENT-260514-4BA0,
+    // ENT-260514-75A3) lives in lints.ts; keep it out of agent-facing text.
+    const notes: string[] = [];
+    if (routing.routed.length > 0) {
+      notes.push(
+        `note: moved ${routing.routed.join(", ")} from tags to related — ` +
+          `tags are for topics, related links entries`,
+      );
+    }
+    if (isShortDecisionNoTags(entry)) {
+      notes.push(
+        `note: this is a short decision with no tags — confirm it is a durable ` +
+          `choice, not transient state, or it reads as an accidental capture`,
+      );
+    }
     writeEntry(entry);
     upsertEntry(db, entry);
     appendLog("remember", { id, kind: entry.kind, tags: entry.tags });
@@ -183,9 +202,10 @@ async function handleRemember(args: unknown) {
       })
       .catch(() => {});
     const tagLine = entry.tags.length ? ` · tags: ${entry.tags.join(", ")}` : "";
+    const noteLine = notes.length ? `\n${notes.join("\n")}` : "";
     return {
       content: [
-        { type: "text", text: `saved ${id} (${entry.kind}${tagLine})\n${entry.body}` },
+        { type: "text", text: `saved ${id} (${entry.kind}${tagLine})\n${entry.body}${noteLine}` },
       ],
     };
   } finally {

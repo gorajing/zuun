@@ -204,4 +204,57 @@ describe("mcp server", () => {
     const err = res.error ?? (res.result as { isError?: boolean }).isError;
     expect(err).toBeTruthy();
   });
+
+  it("remember routes an ENT-shaped tag into related and notes it", async () => {
+    const res = await rpc(proc, 20, "tools/call", {
+      name: "remember",
+      arguments: {
+        body: "An entry that references another.",
+        tags: ["architecture", "ENT-260501-DE46"],
+      },
+    });
+    const text = ((res.result as { content: { text: string }[] }).content[0]).text;
+    expect(text).toMatch(/moved/i);
+    expect(text).toContain("ENT-260501-DE46");
+    // The routed user ID is actionable; the private spec ID must not leak.
+    expect(text).not.toMatch(/ENT-260514-4BA0/);
+    const files = fs.readdirSync(path.join(tmp, "entries"));
+    const body = fs.readFileSync(path.join(tmp, "entries", files[0]!), "utf8");
+    expect(body).toMatch(/related:\s*\n\s*-\s*ENT-260501-DE46/);
+    // The tags block (between `tags:` and the next top-level key) must contain
+    // only `architecture` — the ENT token was routed out, not left behind.
+    const tagsBlock = body.match(/tags:\n((?:\s+-\s.*\n)+)/)?.[1] ?? "";
+    expect(tagsBlock).toContain("architecture");
+    expect(tagsBlock).not.toContain("ENT-260501-DE46");
+  });
+
+  it("remember canonicalizes a lowercase ent tag to uppercase in related", async () => {
+    await rpc(proc, 21, "tools/call", {
+      name: "remember",
+      arguments: { body: "Lowercase ent ref via mcp.", tags: ["ent-260501-de46"] },
+    });
+    const files = fs.readdirSync(path.join(tmp, "entries"));
+    const body = fs.readFileSync(path.join(tmp, "entries", files[0]!), "utf8");
+    expect(body).toMatch(/related:\s*\n\s*-\s*ENT-260501-DE46/);
+  });
+
+  it("remember notes a short untagged decision but still saves it", async () => {
+    const res = await rpc(proc, 22, "tools/call", {
+      name: "remember",
+      arguments: { body: "Use SQLite.", kind: "decision" },
+    });
+    const text = ((res.result as { content: { text: string }[] }).content[0]).text;
+    expect(text).toMatch(/short decision|stub/i);
+    expect(text).not.toMatch(/ENT-260514-75A3/);
+    expect(fs.readdirSync(path.join(tmp, "entries")).length).toBe(1);
+  });
+
+  it("remember does not note a short decision that carries a tag", async () => {
+    const res = await rpc(proc, 23, "tools/call", {
+      name: "remember",
+      arguments: { body: "Use SQLite.", kind: "decision", tags: ["storage"] },
+    });
+    const text = ((res.result as { content: { text: string }[] }).content[0]).text;
+    expect(text).not.toMatch(/short decision|stub/i);
+  });
 });

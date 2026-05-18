@@ -73,4 +73,65 @@ describe("doctor", () => {
     expect(r.healthy).toBe(true);
     expect(r.text).toMatch(/ollama: down/);
   });
+
+  function hex(n: number): string {
+    return n.toString(16).toUpperCase().padStart(4, "0");
+  }
+
+  it("flags audit overdue and fails health when the un-audited backlog hits the threshold", async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error("ECONNREFUSED"));
+    const db = openDb();
+    const audit: Entry = {
+      ...fixture,
+      id: "ENT-260514-0AAA",
+      created: "2026-05-14T00:00:00.000Z",
+      tags: ["audit"],
+    };
+    writeEntry(audit);
+    upsertEntry(db, audit);
+    for (let i = 0; i < 50; i++) {
+      const e: Entry = {
+        ...fixture,
+        id: `ENT-260515-${hex(i)}`,
+        created: `2026-05-15T00:00:${String(i).padStart(2, "0")}.000Z`,
+      };
+      writeEntry(e);
+      upsertEntry(db, e);
+    }
+    db.close();
+    const r = await runDoctor();
+    expect(r.healthy).toBe(false);
+    expect(r.text).toMatch(/audit overdue/i);
+    expect(r.text).toMatch(/50/);
+    expect(r.text).toMatch(/re-audit/i);
+    // Provenance IDs belong in code comments, not user-facing output.
+    expect(r.text).not.toMatch(/ENT-260420-4BDD/);
+  });
+
+  it("stays healthy and reports audit current when the backlog is below threshold", async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error("ECONNREFUSED"));
+    const db = openDb();
+    const audit: Entry = {
+      ...fixture,
+      id: "ENT-260514-0AAA",
+      created: "2026-05-14T00:00:00.000Z",
+      tags: ["audit"],
+    };
+    writeEntry(audit);
+    upsertEntry(db, audit);
+    for (let i = 0; i < 3; i++) {
+      const e: Entry = {
+        ...fixture,
+        id: `ENT-260515-${hex(i)}`,
+        created: `2026-05-15T00:00:0${i}.000Z`,
+      };
+      writeEntry(e);
+      upsertEntry(db, e);
+    }
+    db.close();
+    const r = await runDoctor();
+    expect(r.healthy).toBe(true);
+    expect(r.text).toMatch(/audit:/);
+    expect(r.text).not.toMatch(/audit overdue/i);
+  });
 });
