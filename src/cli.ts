@@ -10,7 +10,7 @@ import { appendLog } from "./lib/log";
 
 // Kept in sync with package.json on release. If this drifts again, switch to
 // a runtime read of package.json (deferred: avoiding rootDir + tsc complexity).
-const VERSION = "0.1.2";
+const VERSION = "0.1.3";
 
 const HELP = `usage: zuun <command>
 

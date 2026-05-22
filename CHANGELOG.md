@@ -3,6 +3,16 @@
 All notable changes to this project are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.3] — 2026-05-19
+
+### Added
+
+- **`codex` as a first-class entry source.** Codex (OpenAI CLI) speaks MCP, so `zuun mcp` exposes `remember` / `context_for` there natively. Set `ZUUN_MCP_SOURCE=codex` in the Codex `[mcp_servers.zuun]` config and Codex-captured memories are attributed to `codex` instead of silently falling back to `claude-code`.
+
+### Notes
+
+- Additive, backward-compatible: `source` is enforced only in Zod (free-text at the DB), so no migration and `schema_version` stays `2`. Existing entries are unaffected.
+
 ## [0.1.2] — 2026-05-18
 
 ### Added
