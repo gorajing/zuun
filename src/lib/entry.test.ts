@@ -35,6 +35,15 @@ describe("EntrySchema", () => {
     expect(() => EntrySchema.parse({ ...valid, kind: "insight" })).toThrow();
   });
 
+  it("accepts codex as a first-class source", () => {
+    const parsed = EntrySchema.parse({ ...valid, source: "codex" });
+    expect(parsed.source).toBe("codex");
+  });
+
+  it("rejects an unknown source (enum stays closed)", () => {
+    expect(() => EntrySchema.parse({ ...valid, source: "vscode" })).toThrow();
+  });
+
   it("stance is optional", () => {
     const parsed = EntrySchema.parse({ ...valid, stance: "Local-first wins" });
     expect(parsed.stance).toBe("Local-first wins");

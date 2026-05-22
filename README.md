@@ -230,7 +230,7 @@ Required fields:
 | `created` | ISO 8601 | UTC |
 | `body`  | string     | One self-contained claim. "Local-first beats cloud-first because…" — not a paragraph. |
 | `kind`  | enum       | `decision` · `observation` · `pattern` · `commitment` · `reference` |
-| `source`| enum       | `claude-code` · `cursor` · `git` · `manual` · `import` |
+| `source`| enum       | `claude-code` · `cursor` · `codex` · `git` · `manual` · `import` |
 
 Optional fields: `stance`, `tags[]`, `related[]`, `confidence`, `origin`, `project`.
 
@@ -248,7 +248,7 @@ Environment variables:
 | `OLLAMA_URL` | `http://127.0.0.1:11434` | Ollama server for embeddings |
 | `ZUUN_EMBED_MODEL` | `nomic-embed-text` | Embedding model name |
 | `ZUUN_SEARCH_BLEND` | `fts=0.45,vec=0.45,recency=0.1` | Hybrid search weights |
-| `ZUUN_MCP_SOURCE` | `claude-code` | Tag for entries created via MCP |
+| `ZUUN_MCP_SOURCE` | `claude-code` | `source` tag for entries created via MCP — any `source` enum value (e.g. `codex` when wired into Codex). Unrecognized values fall back to `claude-code`. |
 | `ZUUN_BIN` | *(set by shim)* | Absolute path to `bin/zuun.js`, used by git hook installer |
 | `EDITOR` | `vi` | Editor for `zuun edit` |
 

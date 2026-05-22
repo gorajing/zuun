@@ -30,6 +30,7 @@ export type EntryKind = z.infer<typeof EntryKind>;
 export const EntrySource = z.enum([
   "claude-code", // auto-captured from a Claude Code session
   "cursor",      // auto-captured from Cursor
+  "codex",       // captured from a Codex (OpenAI CLI) session via the MCP server
   "git",         // captured from a commit / PR / diff
   "manual",      // user typed it in via remember() or CLI
   "import",      // bulk-imported from another system
