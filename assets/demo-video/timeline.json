@@ -1,0 +1,47 @@
+{
+  "$schema": "cinematic-explainer-timeline-v1",
+  "output": "/Users/jinchoi/Code/zuun/assets/demo.mp4",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "transition": 0.42,
+  "fade_in": 0.2,
+  "fade_out": 0.45,
+  "clips": [
+    {
+      "id": "01-open",
+      "file": "/Users/jinchoi/Code/zuun/assets/demo-video/clips/01-open.mp4",
+      "duration": 4.8
+    },
+    {
+      "id": "02-capture",
+      "file": "/Users/jinchoi/Code/zuun/assets/demo-video/clips/02-capture.mp4",
+      "duration": 6
+    },
+    {
+      "id": "03-quality",
+      "file": "/Users/jinchoi/Code/zuun/assets/demo-video/clips/03-quality.mp4",
+      "duration": 5.4
+    },
+    {
+      "id": "04-retrieval",
+      "file": "/Users/jinchoi/Code/zuun/assets/demo-video/clips/04-retrieval.mp4",
+      "duration": 5.8
+    },
+    {
+      "id": "05-session-start",
+      "file": "/Users/jinchoi/Code/zuun/assets/demo-video/clips/05-session-start.mp4",
+      "duration": 6.2
+    },
+    {
+      "id": "06-local",
+      "file": "/Users/jinchoi/Code/zuun/assets/demo-video/clips/06-local.mp4",
+      "duration": 5.7
+    },
+    {
+      "id": "07-close",
+      "file": "/Users/jinchoi/Code/zuun/assets/demo-video/clips/07-close.mp4",
+      "duration": 5
+    }
+  ]
+}

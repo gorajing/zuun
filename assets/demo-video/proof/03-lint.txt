@@ -1,0 +1,3 @@
+$ printf "Use sqlite." | ZUUN_HOME=/tmp/zuun-video-store node bin/zuun.js capture --kind decision
+capture: ENT-260610-0FE4 is a short decision with no tags — likely an accidental auto-capture; 'zuun forget ENT-260610-0FE4' if it is not a durable choice
+ENT-260610-0FE4

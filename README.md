@@ -1,6 +1,8 @@
 # Zuun
 ![zuun in action](assets/demo.gif)
 
+[Watch the HD demo](assets/demo.mp4)
+
 **Persistent memory for AI-assisted work.** A Claude Code plugin that captures durable insights from your sessions and surfaces them into future ones — so you stop re-explaining yourself to the agent.
 
 - 🧠 **MCP tools** — `remember` and `context_for` the agent can call mid-session
@@ -130,7 +132,7 @@ If you want to hack on zuun's source:
 git clone https://github.com/gorajing/zuun.git
 cd zuun
 npm install
-npm test           # 167 tests should pass in ~5s
+npm test           # run the test suite
 
 # Load your local working copy into Claude Code instead of the marketplace version:
 claude --plugin-dir "$PWD"
@@ -259,7 +261,7 @@ Environment variables:
 
 ```bash
 npm install
-npm test                       # full suite (167 tests, ~5s)
+npm test                       # full test suite
 npm run cli -- <subcommand>    # run CLI without building
 npm run dev                    # run the MCP server directly (debugging)
 ```

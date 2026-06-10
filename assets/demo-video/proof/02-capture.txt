@@ -1,0 +1,6 @@
+$ printf ... | ZUUN_HOME=/tmp/zuun-video-store node bin/zuun.js capture --kind pattern --tag security --tag shell
+ENT-260610-2AFB
+$ printf ... | ZUUN_HOME=/tmp/zuun-video-store node bin/zuun.js capture --kind decision --tag architecture --tag local-first
+ENT-260610-2A35
+$ printf ... | ZUUN_HOME=/tmp/zuun-video-store node bin/zuun.js capture --kind commitment --tag workflow
+ENT-260610-D6A9

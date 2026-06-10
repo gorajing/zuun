@@ -1,0 +1,2 @@
+$ ZUUN_HOME=/tmp/zuun-video-store node bin/zuun.js init
+initialized zuun store at /tmp/zuun-video-store
