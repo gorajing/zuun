@@ -1,8 +1,6 @@
 # Zuun
 ![zuun in action](assets/demo.gif)
 
-[Watch the HD demo](assets/demo.mp4)
-
 **Persistent memory for AI-assisted work.** A Claude Code plugin that captures durable insights from your sessions and surfaces them into future ones — so you stop re-explaining yourself to the agent.
 
 - 🧠 **MCP tools** — `remember` and `context_for` the agent can call mid-session

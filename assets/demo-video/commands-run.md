@@ -39,10 +39,10 @@ bash /Users/jinchoi/.codex/skills/cinematic-explainer-videos/scripts/extract_rev
   assets/demo.mp4 assets/demo-video/review \
   2.6:open 7.5:capture 13.4:quality 19.0:retrieval 25.3:session-start 31.2:local 35.0:close
 ffmpeg -y -i assets/demo.mp4 \
-  -vf "fps=8,scale=768:-1:flags=lanczos,palettegen=stats_mode=diff" \
+  -vf "fps=10,scale=800:-1:flags=lanczos,palettegen=stats_mode=diff" \
   /tmp/zuun-demo-palette.png
 ffmpeg -y -i assets/demo.mp4 -i /tmp/zuun-demo-palette.png \
-  -filter_complex "fps=8,scale=768:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle" \
+  -filter_complex "fps=10,scale=800:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=2:diff_mode=rectangle" \
   assets/demo.gif
 ```
 
@@ -50,3 +50,4 @@ Verification notes:
 
 - `npm test` currently reports `202 passed` and `1 failed`; the failing test is `src/mcp.test.ts > context_for respects project scoping`.
 - The video therefore does not claim that the test suite passes.
+- `assets/demo.gif` is `800x450`, `10fps`, `36.400000s`, `12,036,547` bytes.
