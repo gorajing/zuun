@@ -2,52 +2,62 @@
 
 All demo proof commands used `ZUUN_HOME=/tmp/zuun-video-store` so they did not touch the user's real Zuun store.
 
+Proof commands:
+
 ```bash
-rm -rf /tmp/zuun-video-store /tmp/zuun-video-proof
-mkdir -p /tmp/zuun-video-proof
-ZUUN_HOME=/tmp/zuun-video-store node bin/zuun.js init
-printf 'Prefer execFileSync over exec when invoking git because shell interpolation turns filenames into attack surface.' \
-  | ZUUN_HOME=/tmp/zuun-video-store node bin/zuun.js capture --kind pattern --tag security --tag shell
-printf 'Keep markdown files as the source of truth; SQLite is a derived index that can be rebuilt with reindex.' \
-  | ZUUN_HOME=/tmp/zuun-video-store node bin/zuun.js capture --kind decision --tag architecture --tag local-first
-printf 'Use SessionStart to preload durable project context before planning a new coding task.' \
-  | ZUUN_HOME=/tmp/zuun-video-store node bin/zuun.js capture --kind commitment --tag workflow
-printf 'Use sqlite.' \
-  | ZUUN_HOME=/tmp/zuun-video-store node bin/zuun.js capture --kind decision
-ZUUN_HOME=/tmp/zuun-video-store node bin/zuun.js forget ENT-260610-0FE4
-ZUUN_HOME=/tmp/zuun-video-store node bin/zuun.js explain "shell injection"
+PROOF=assets/demo-video/proof
+STORE=/tmp/zuun-video-store
+rm -rf "$STORE"
+mkdir -p "$PROOF"
+ZUUN_HOME="$STORE" node bin/zuun.js init > "$PROOF/01-init.txt" 2>&1
+printf 'Keep one durable claim per Zuun memory so future agents can retrieve a decision without replaying the whole chat.' \
+  | ZUUN_HOME="$STORE" node bin/zuun.js capture --kind decision --tag memory --tag agent-context \
+  > "$PROOF/02a-capture-decision.txt" 2>&1
+printf 'Prefer markdown as the source of truth and treat SQLite as a rebuildable search index.' \
+  | ZUUN_HOME="$STORE" node bin/zuun.js capture --kind pattern --tag local-first --tag sqlite \
+  > "$PROOF/02b-capture-pattern.txt" 2>&1
+printf 'Use SessionStart to preload project-scoped decisions before the agent starts planning.' \
+  | ZUUN_HOME="$STORE" node bin/zuun.js capture --kind commitment --tag workflow --tag session-start \
+  > "$PROOF/02c-capture-commitment.txt" 2>&1
+ZUUN_HOME="$STORE" node bin/zuun.js search "sqlite source truth" > "$PROOF/03-search.txt" 2>&1
+ZUUN_HOME="$STORE" node bin/zuun.js explain "sqlite source truth" > "$PROOF/04-explain.txt" 2>&1
 printf '{"cwd":"/Users/jinchoi/Code/zuun"}' \
-  | ZUUN_HOME=/tmp/zuun-video-store node bin/zuun.js session-start
-ZUUN_HOME=/tmp/zuun-video-store node bin/zuun.js doctor
-find /tmp/zuun-video-store -maxdepth 2 -type f | sort
+  | ZUUN_HOME="$STORE" node bin/zuun.js session-start > "$PROOF/05-session-start.txt" 2>&1
+ZUUN_HOME="$STORE" node bin/zuun.js doctor > "$PROOF/06-doctor.txt" 2>&1
+find "$STORE" -maxdepth 2 -type f | sort > "$PROOF/07-files.txt"
 ```
 
 Render commands:
 
 ```bash
 node assets/demo-video/build-scenes.mjs
-NODE_PATH=/Users/jinchoi/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules \
-  /Users/jinchoi/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node \
-  /Users/jinchoi/.codex/skills/cinematic-explainer-videos/scripts/record_card.mjs \
-  --input assets/demo-video/scenes/<scene>.html \
-  --out assets/demo-video/clips/<scene>.mp4 \
-  --duration <ms>
-/Users/jinchoi/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node \
-  /Users/jinchoi/.codex/skills/cinematic-explainer-videos/scripts/assemble_timeline.mjs \
+NODE_PATH=/tmp/cinematic-video-tools/node_modules \
+  node /Users/jinchoi/.codex/skills/cinematic-explainer-videos/scripts/record_card.mjs \
+  --input assets/demo-video/scenes/film.html \
+  --out assets/demo-video/clips/film.mp4 \
+  --duration 34000 \
+  --width 1280 \
+  --height 720 \
+  --fps 30
+node /Users/jinchoi/.codex/skills/cinematic-explainer-videos/scripts/assemble_timeline.mjs \
   assets/demo-video/timeline.json
 bash /Users/jinchoi/.codex/skills/cinematic-explainer-videos/scripts/extract_review_frames.sh \
   assets/demo.mp4 assets/demo-video/review \
-  2.6:open 7.5:capture 13.4:quality 19.0:retrieval 25.3:session-start 31.2:local 35.0:close
+  1.0:intro-start 4.2:intro 6.8:bridge 9.4:capture 13.0:store 19.2:retrieval 25.5:session-start 31.5:close
 ffmpeg -y -i assets/demo.mp4 \
-  -vf "fps=10,scale=800:-1:flags=lanczos,palettegen=stats_mode=diff" \
+  -vf "fps=12,scale=900:-1:flags=lanczos,palettegen=stats_mode=diff" \
   /tmp/zuun-demo-palette.png
 ffmpeg -y -i assets/demo.mp4 -i /tmp/zuun-demo-palette.png \
-  -filter_complex "fps=10,scale=800:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=2:diff_mode=rectangle" \
+  -filter_complex "fps=12,scale=900:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=2:diff_mode=rectangle" \
   assets/demo.gif
 ```
 
 Verification notes:
 
-- `npm test` currently reports `202 passed` and `1 failed`; the failing test is `src/mcp.test.ts > context_for respects project scoping`.
-- The video therefore does not claim that the test suite passes.
-- `assets/demo.gif` is `800x450`, `10fps`, `36.400000s`, `12,036,547` bytes.
+- `npm run build` passed.
+- `npm test` currently reports `202 passed` and `1 failed`.
+- The failing test is `src/mcp.test.ts > context_for respects project scoping — cross-project entries are excluded`.
+- The failure expected `SAME-PROJECT-MARKER` but received `no prior context`.
+- The video therefore does not claim that the full test suite passes.
+- `assets/demo.mp4` is `1280x720`, `30fps`, `34.000000s`, `2,108,322` bytes.
+- `assets/demo.gif` is `900x506`, `12fps`, `34.000000s`, `11,708,145` bytes.

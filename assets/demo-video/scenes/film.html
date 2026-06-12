@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280,height=720,initial-scale=1">
+<title>Zuun cinematic demo</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  body {
+    --paper: #f4f7f1;
+    --paper-2: #e9f0e9;
+    --ink: #111719;
+    --muted: #5c6765;
+    --line: rgba(18, 24, 26, 0.15);
+    --panel: rgba(255, 255, 252, 0.82);
+    --deep: #10151a;
+    --deep-2: #172027;
+    --blue: #2468e8;
+    --green: #1f9d73;
+    --amber: #c98714;
+    --coral: #d85d4a;
+    --violet: #6d5bd0;
+    width: 1280px;
+    height: 720px;
+    color: var(--ink);
+    background:
+      linear-gradient(115deg, rgba(36, 104, 232, 0.10), transparent 28%),
+      linear-gradient(290deg, rgba(31, 157, 115, 0.12), transparent 34%),
+      radial-gradient(circle at 52% 4%, rgba(216, 93, 74, 0.10), transparent 24%),
+      linear-gradient(180deg, #f7f9f4 0%, var(--paper) 100%);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", sans-serif;
+    letter-spacing: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    opacity: 0.26;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, transparent 0 79px, rgba(17, 23, 25, 0.07) 80px),
+      linear-gradient(transparent 0 79px, rgba(17, 23, 25, 0.045) 80px);
+    background-size: 80px 80px;
+  }
+  .film {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    padding: 38px 54px;
+  }
+  .topbar {
+    position: absolute;
+    top: 34px;
+    left: 54px;
+    right: 54px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--muted);
+    font-size: 17px;
+    font-weight: 650;
+    z-index: 20;
+  }
+  .topbar strong {
+    color: var(--ink);
+    font-size: 19px;
+    font-weight: 850;
+  }
+  .pill {
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.62);
+    border-radius: 8px;
+    padding: 8px 12px;
+    box-shadow: 0 16px 40px rgba(31, 41, 48, 0.07);
+  }
+  .intro {
+    position: absolute;
+    left: 70px;
+    top: 96px;
+    width: 520px;
+    z-index: 15;
+    animation: introOut 34s linear both;
+  }
+  .intro .eyebrow {
+    color: var(--blue);
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+  .intro h1 {
+    margin: 0;
+    max-width: 560px;
+    font-size: 67px;
+    line-height: 0.96;
+    font-weight: 900;
+  }
+  .intro p {
+    margin: 20px 0 0;
+    color: var(--muted);
+    max-width: 510px;
+    font-size: 25px;
+    line-height: 1.18;
+    font-weight: 570;
+  }
+  .bridge {
+    position: absolute;
+    left: 314px;
+    top: 318px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--muted);
+    font-size: 18px;
+    font-weight: 760;
+    z-index: 14;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: bridgeIn 34s ease both;
+  }
+  .bridge span {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.68);
+    padding: 11px 14px;
+    box-shadow: 0 16px 36px rgba(31, 41, 48, 0.08);
+  }
+  .bridge i {
+    width: 42px;
+    height: 2px;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--blue), var(--green));
+  }
+  .panels {
+    position: absolute;
+    inset: 122px 54px 92px;
+    display: grid;
+    grid-template-columns: 330px 362px 330px;
+    gap: 75px;
+    opacity: 0;
+    transform: translateY(18px);
+    animation: panelsIn 34s cubic-bezier(.2,.76,.15,1) both;
+  }
+  .panel {
+    position: relative;
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+    box-shadow: 0 24px 68px rgba(30, 42, 52, 0.16);
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+  }
+  .panel.dark {
+    background: linear-gradient(180deg, var(--deep-2), var(--deep));
+    color: #eff6f1;
+    border-color: rgba(255,255,255,0.10);
+  }
+  .panel-head {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 780;
+  }
+  .dark .panel-head {
+    border-bottom-color: rgba(255,255,255,0.12);
+    color: #95a4a4;
+  }
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .status::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--green);
+  }
+  .panel-body {
+    position: relative;
+    height: calc(100% - 44px);
+    padding: 18px;
+  }
+  .bubble {
+    border-radius: 8px;
+    padding: 14px 15px;
+    font-size: 17px;
+    line-height: 1.22;
+    font-weight: 620;
+    color: var(--ink);
+    background: rgba(255,255,255,0.76);
+    border: 1px solid rgba(17,23,25,0.10);
+    box-shadow: 0 16px 30px rgba(35, 45, 52, 0.08);
+  }
+  .bubble.agent {
+    margin-left: 34px;
+    margin-top: 14px;
+    color: #f5fbf7;
+    background: linear-gradient(135deg, #1b262d, #26323b);
+    border-color: rgba(255,255,255,0.10);
+  }
+  .bubble.small {
+    font-size: 15px;
+    line-height: 1.24;
+    color: var(--muted);
+    font-weight: 590;
+  }
+  .tool-call {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    height: 92px;
+    border-radius: 8px;
+    border: 1px solid rgba(36,104,232,0.28);
+    background: rgba(235, 242, 255, 0.76);
+    padding: 14px 15px;
+    transform: translateY(18px);
+    opacity: 0;
+    animation: toolCall 34s ease both;
+  }
+  .tool-call b {
+    display: block;
+    color: var(--blue);
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+  .tool-call span {
+    display: block;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.22;
+    font-weight: 620;
+  }
+  .claim-card {
+    position: absolute;
+    left: 162px;
+    top: 318px;
+    width: 300px;
+    min-height: 112px;
+    border-radius: 8px;
+    border: 1px solid rgba(36,104,232,0.30);
+    background: #ffffff;
+    box-shadow: 0 28px 70px rgba(36, 104, 232, 0.20);
+    padding: 15px 16px;
+    z-index: 30;
+    opacity: 0;
+    transform: translateY(18px) scale(.96);
+    animation: claimTravel 34s cubic-bezier(.22,.76,.18,1) both;
+  }
+  .claim-card .id {
+    color: var(--blue);
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 14px;
+    font-weight: 820;
+    margin-bottom: 8px;
+  }
+  .claim-card .body {
+    font-size: 16px;
+    line-height: 1.22;
+    font-weight: 690;
+  }
+  .store-glow {
+    position: absolute;
+    inset: 52px 36px 34px;
+    border-radius: 10px;
+    background:
+      radial-gradient(circle at 50% 32%, rgba(31,157,115,0.26), transparent 38%),
+      linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0));
+    opacity: 0;
+    animation: storeGlow 34s ease both;
+  }
+  .store-stack {
+    position: relative;
+    display: grid;
+    gap: 10px;
+    z-index: 2;
+  }
+  .file-row {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.065);
+    border: 1px solid rgba(255,255,255,0.10);
+    opacity: 0.22;
+    transform: translateY(10px);
+  }
+  .file-row:nth-child(1) { animation: fileIn1 34s ease both; }
+  .file-row:nth-child(2) { animation: fileIn2 34s ease both; }
+  .file-row:nth-child(3) { animation: fileIn3 34s ease both; }
+  .file-row:nth-child(4) { animation: fileIn4 34s ease both; }
+  .file-icon {
+    width: 34px;
+    height: 42px;
+    border-radius: 6px;
+    background: linear-gradient(180deg, #f6fff8, #dceee4);
+    color: #1d7056;
+    display: grid;
+    place-items: center;
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 12px;
+    font-weight: 850;
+  }
+  .file-row.db .file-icon { background: linear-gradient(180deg, #edf3ff, #cbdcff); color: var(--blue); }
+  .file-row.log .file-icon { background: linear-gradient(180deg, #fff6df, #f0d289); color: #815600; }
+  .file-title {
+    color: #f2faf5;
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 14px;
+    font-weight: 820;
+    margin-bottom: 4px;
+  }
+  .file-sub {
+    color: #9fb1ae;
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 630;
+  }
+  .score-card {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.07);
+    padding: 14px;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: scoreIn 34s ease both;
+  }
+  .query {
+    color: #9fb1ae;
+    font-size: 13px;
+    font-weight: 740;
+    margin-bottom: 8px;
+  }
+  .result-id {
+    color: #87ddb8;
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 15px;
+    font-weight: 850;
+    margin-bottom: 9px;
+  }
+  .score-line {
+    color: #d8f1e6;
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 12px;
+    line-height: 1.25;
+    white-space: pre-wrap;
+  }
+  .context-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 6px;
+  }
+  .context-row {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(17,23,25,0.10);
+    background: rgba(255,255,255,0.74);
+    padding: 13px 14px;
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+  .context-row:nth-child(1) { animation: contextIn1 34s ease both; }
+  .context-row:nth-child(2) { animation: contextIn2 34s ease both; }
+  .context-row:nth-child(3) { animation: contextIn3 34s ease both; }
+  .context-row code {
+    color: var(--blue);
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 13px;
+    font-weight: 850;
+  }
+  .context-row p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.21;
+    font-weight: 630;
+  }
+  .session-badge {
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+    left: 18px;
+    border-radius: 8px;
+    background: #111719;
+    color: #eaf4ee;
+    padding: 14px 15px;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: badgeIn 34s ease both;
+  }
+  .session-badge b {
+    display: block;
+    color: #87ddb8;
+    font-size: 32px;
+    line-height: 1;
+    margin-bottom: 3px;
+  }
+  .session-badge span {
+    color: #b9c8c4;
+    font-size: 13px;
+    font-weight: 660;
+  }
+  .path {
+    position: absolute;
+    left: 378px;
+    top: 320px;
+    width: 512px;
+    height: 110px;
+    z-index: 4;
+    opacity: 0;
+    animation: pathIn 34s ease both;
+  }
+  .path svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .path path {
+    fill: none;
+    stroke: url(#flow);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+    animation: drawPath 34s ease both;
+  }
+  .bottom {
+    position: absolute;
+    left: 54px;
+    right: 54px;
+    bottom: 28px;
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 22px;
+    align-items: end;
+  }
+  .caption {
+    min-height: 54px;
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1.25;
+    font-weight: 620;
+  }
+  .caption b { color: var(--ink); }
+  .caption .line {
+    position: absolute;
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  .caption .line:nth-child(1) { animation: caption1 34s ease both; }
+  .caption .line:nth-child(2) { animation: caption2 34s ease both; }
+  .caption .line:nth-child(3) { animation: caption3 34s ease both; }
+  .caption .line:nth-child(4) { animation: caption4 34s ease both; }
+  .caption .line:nth-child(5) { animation: caption5 34s ease both; }
+  .meter {
+    height: 7px;
+    border-radius: 99px;
+    overflow: hidden;
+    background: rgba(17,23,25,0.10);
+  }
+  .meter i {
+    display: block;
+    height: 100%;
+    width: 100%;
+    transform-origin: left;
+    transform: scaleX(0);
+    background: linear-gradient(90deg, var(--blue), var(--green), var(--amber), var(--coral));
+    animation: meter 34s linear both;
+  }
+  .proof {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 760;
+  }
+  .proof div {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 9px 10px;
+    background: rgba(255,255,255,0.58);
+  }
+  .proof b {
+    display: block;
+    color: var(--ink);
+    font-size: 20px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  @keyframes introOut {
+    0%, 14% { opacity: 1; transform: translateY(0); }
+    18%, 100% { opacity: 0; transform: translateY(-18px); }
+  }
+  @keyframes panelsIn {
+    0%, 22% { opacity: 0; transform: translateY(18px); }
+    27%, 100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes bridgeIn {
+    0%, 15% { opacity: 0; transform: translateY(10px); }
+    18%, 22% { opacity: 1; transform: translateY(0); }
+    27%, 100% { opacity: 0; transform: translateY(-10px); }
+  }
+  @keyframes toolCall {
+    0%, 22% { opacity: 0; transform: translateY(18px); }
+    27%, 52% { opacity: 1; transform: translateY(0); }
+    59%, 100% { opacity: .34; transform: translateY(0); }
+  }
+  @keyframes claimTravel {
+    0%, 24% { opacity: 0; transform: translateY(18px) scale(.96); }
+    28%, 35% { opacity: 1; transform: translateY(0) scale(1); }
+    47% { opacity: 1; transform: translate(336px, -2px) scale(.88); }
+    54%, 100% { opacity: 0; transform: translate(348px, -8px) scale(.74); }
+  }
+  @keyframes storeGlow {
+    0%, 36% { opacity: 0; }
+    44%, 64% { opacity: 1; }
+    74%, 100% { opacity: .45; }
+  }
+  @keyframes fileIn1 {
+    0%, 37% { opacity: .22; transform: translateY(10px); }
+    44%, 100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fileIn2 {
+    0%, 39% { opacity: .22; transform: translateY(10px); }
+    47%, 100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fileIn3 {
+    0%, 41% { opacity: .22; transform: translateY(10px); }
+    50%, 100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fileIn4 {
+    0%, 45% { opacity: .18; transform: translateY(10px); }
+    54%, 100% { opacity: .94; transform: translateY(0); }
+  }
+  @keyframes scoreIn {
+    0%, 49% { opacity: 0; transform: translateY(16px); }
+    57%, 67% { opacity: 1; transform: translateY(0); }
+    76%, 100% { opacity: .22; transform: translateY(0); }
+  }
+  @keyframes contextIn1 {
+    0%, 62% { opacity: 0; transform: translateX(-18px); }
+    69%, 100% { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes contextIn2 {
+    0%, 65% { opacity: 0; transform: translateX(-18px); }
+    72%, 100% { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes contextIn3 {
+    0%, 68% { opacity: 0; transform: translateX(-18px); }
+    75%, 100% { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes badgeIn {
+    0%, 75% { opacity: 0; transform: translateY(16px); }
+    82%, 100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pathIn {
+    0%, 28% { opacity: 0; }
+    35%, 82% { opacity: 1; }
+    92%, 100% { opacity: .4; }
+  }
+  @keyframes drawPath {
+    0%, 33% { stroke-dashoffset: 600; }
+    50%, 100% { stroke-dashoffset: 0; }
+  }
+  @keyframes caption1 {
+    0%, 17% { opacity: 0; transform: translateY(8px); }
+    20%, 31% { opacity: 1; transform: translateY(0); }
+    37%, 100% { opacity: 0; transform: translateY(-8px); }
+  }
+  @keyframes caption2 {
+    0%, 34% { opacity: 0; transform: translateY(8px); }
+    40%, 51% { opacity: 1; transform: translateY(0); }
+    57%, 100% { opacity: 0; transform: translateY(-8px); }
+  }
+  @keyframes caption3 {
+    0%, 52% { opacity: 0; transform: translateY(8px); }
+    57%, 68% { opacity: 1; transform: translateY(0); }
+    73%, 100% { opacity: 0; transform: translateY(-8px); }
+  }
+  @keyframes caption4 {
+    0%, 68% { opacity: 0; transform: translateY(8px); }
+    73%, 84% { opacity: 1; transform: translateY(0); }
+    90%, 100% { opacity: 0; transform: translateY(-8px); }
+  }
+  @keyframes caption5 {
+    0%, 86% { opacity: 0; transform: translateY(8px); }
+    91%, 100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes meter {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+</style>
+</head>
+<body>
+  <main class="film">
+    <header class="topbar">
+      <div><strong>Zuun</strong> / persistent memory for AI-assisted work</div>
+      <div class="pill">local markdown + SQLite + SessionStart</div>
+    </header>
+
+    <section class="intro">
+      <div class="eyebrow">memory for the next session</div>
+      <h1>Stop re-explaining yourself.</h1>
+      <p>Zuun keeps the decisions worth carrying forward, then gives them back to the agent when work resumes.</p>
+    </section>
+
+    <section class="bridge">
+      <span>today's session</span>
+      <i></i>
+      <span>local memory</span>
+      <i></i>
+      <span>next session</span>
+    </section>
+
+    <div class="path" aria-hidden="true">
+      <svg viewBox="0 0 512 110">
+        <defs>
+          <linearGradient id="flow" x1="0" x2="1">
+            <stop offset="0" stop-color="#2468e8" />
+            <stop offset=".52" stop-color="#1f9d73" />
+            <stop offset="1" stop-color="#c98714" />
+          </linearGradient>
+        </defs>
+        <path d="M4,78 C124,6 244,102 336,42 C400,0 460,30 508,16" />
+      </svg>
+    </div>
+
+    <section class="panels">
+      <article class="panel">
+        <div class="panel-head">
+          <span>today's Claude Code session</span>
+          <span class="status">active</span>
+        </div>
+        <div class="panel-body">
+          <div class="bubble small">We chose a local-first memory design because the durable artifact should survive tools, accounts, and sessions.</div>
+          <div class="bubble agent">Save the part future work would otherwise have to rediscover.</div>
+          <div class="tool-call">
+            <b>remember</b>
+            <span>kind: decision<br>tags: memory, agent-context<br>one self-contained claim</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel dark">
+        <div class="panel-head">
+          <span>~/.zuun store</span>
+          <span>source of truth</span>
+        </div>
+        <div class="panel-body">
+          <div class="store-glow"></div>
+          <div class="store-stack">
+            <div class="file-row">
+              <div class="file-icon">md</div>
+              <div>
+                <div class="file-title">ENT-260612-1F49.md</div>
+                <div class="file-sub">decision / agent-context</div>
+              </div>
+            </div>
+            <div class="file-row">
+              <div class="file-icon">md</div>
+              <div>
+                <div class="file-title">ENT-260612-675D.md</div>
+                <div class="file-sub">pattern / local-first</div>
+              </div>
+            </div>
+            <div class="file-row">
+              <div class="file-icon">md</div>
+              <div>
+                <div class="file-title">ENT-260612-EBE6.md</div>
+                <div class="file-sub">commitment / session-start</div>
+              </div>
+            </div>
+            <div class="file-row db">
+              <div class="file-icon">db</div>
+              <div>
+                <div class="file-title">index.db</div>
+                <div class="file-sub">FTS5 + optional vectors, rebuilt from markdown</div>
+              </div>
+            </div>
+            <div class="file-row log">
+              <div class="file-icon">log</div>
+              <div>
+                <div class="file-title">log.jsonl</div>
+                <div class="file-sub">append-only audit trail</div>
+              </div>
+            </div>
+          </div>
+          <div class="score-card">
+            <div class="query">context_for / explain: "sqlite source truth"</div>
+            <div class="result-id">ENT-260612-675D surfaced</div>
+            <div class="score-line">fts: 1.000  vec: 0.000  recency: 1.000  →  score: 1.000</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head">
+          <span>next session opens with</span>
+          <span>additionalContext</span>
+        </div>
+        <div class="panel-body">
+          <div class="context-list">
+            <div class="context-row">
+              <code>ENT-260612-EBE6</code>
+              <p>Use SessionStart to preload project-scoped decisions before the agent starts planning.</p>
+            </div>
+            <div class="context-row">
+              <code>ENT-260612-675D</code>
+              <p>Prefer markdown as the source of truth and treat SQLite as a rebuildable search index.</p>
+            </div>
+            <div class="context-row">
+              <code>ENT-260612-1F49</code>
+              <p>Keep one durable claim per memory so future agents can retrieve a decision without replaying the whole chat.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <div class="claim-card">
+      <div class="id">ENT-260612-1F49</div>
+      <div class="body">Keep one durable claim per memory so future agents can retrieve a decision without replaying the whole chat.</div>
+    </div>
+
+    <footer class="bottom">
+      <div>
+        <div class="caption">
+          <div class="line"><b>Capture:</b> one durable claim enters the memory loop.</div>
+          <div class="line"><b>Store:</b> markdown files stay primary; SQLite is a rebuildable index.</div>
+          <div class="line"><b>Retrieve:</b> Zuun explains why a memory surfaced.</div>
+          <div class="line"><b>Resume:</b> SessionStart injects high-signal project context.</div>
+          <div class="line"><b>Small surface area:</b> remember, context_for, and a reflection habit.</div>
+        </div>
+        <div class="meter"><i></i></div>
+      </div>
+      <div class="proof">
+        <div><b>3</b>entries on disk</div>
+        <div><b>3</b>entries in DB</div>
+        <div><b>0</b>broken refs</div>
+      </div>
+    </footer>
+  </main>
+</body>
+</html>

@@ -183,16 +183,19 @@ describe("mcp server", () => {
   it("context_for respects project scoping — cross-project entries are excluded", async () => {
     await rpc(proc, 13, "tools/call", {
       name: "remember",
-      arguments: { body: "SAME-PROJECT-MARKER is in this project's context." },
+      arguments: { body: "SAME-PROJECT-MARKER scoping clue is in this project's context." },
     });
     await rpc(proc, 14, "tools/call", {
       name: "remember",
-      arguments: { body: "OTHER-PROJECT-MARKER should not leak across projects.", project: "/unrelated/path" },
+      arguments: {
+        body: "OTHER-PROJECT-MARKER scoping clue should not leak across projects.",
+        project: "/unrelated/path",
+      },
     });
 
     const res = await rpc(proc, 15, "tools/call", {
       name: "context_for",
-      arguments: { task: "any marker I should see" },
+      arguments: { task: "scoping clue marker I should see" },
     });
     const text = ((res.result as { content: { text: string }[] }).content[0]).text;
     expect(text).toContain("SAME-PROJECT-MARKER");

@@ -1,0 +1,3 @@
+ENT-260612-675D · pattern · 2026-06-12T04:21:13.869Z
+  Prefer markdown as the source of truth and treat SQLite as a rebuildable search index.
+

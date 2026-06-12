@@ -1,5 +1,4 @@
-$ ZUUN_HOME=/tmp/zuun-video-store node bin/zuun.js explain "shell injection"
-ENT-260610-2AFB · pattern · 2026-06-10T22:05:04.138Z
+ENT-260612-675D · pattern · 2026-06-12T04:21:13.869Z
   fts: 1.000  vec: 0.000  recency: 1.000  →  score: 1.000
-  Prefer execFileSync over exec when invoking git because shell interpolation turns filenames into attack surface.
+  Prefer markdown as the source of truth and treat SQLite as a rebuildable search index.
 

@@ -1,6 +1,5 @@
-$ find /tmp/zuun-video-store -maxdepth 2 -type f | sort
-/tmp/zuun-video-store/entries/ENT-260610-2A35.md
-/tmp/zuun-video-store/entries/ENT-260610-2AFB.md
-/tmp/zuun-video-store/entries/ENT-260610-D6A9.md
+/tmp/zuun-video-store/entries/ENT-260612-1F49.md
+/tmp/zuun-video-store/entries/ENT-260612-675D.md
+/tmp/zuun-video-store/entries/ENT-260612-EBE6.md
 /tmp/zuun-video-store/index.db
 /tmp/zuun-video-store/log.jsonl

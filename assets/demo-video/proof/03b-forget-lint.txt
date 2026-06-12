@@ -1,2 +1,0 @@
-$ ZUUN_HOME=/tmp/zuun-video-store node bin/zuun.js forget ENT-260610-0FE4
-forgot ENT-260610-0FE4
